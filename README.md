@@ -1,2 +1,2 @@
 # ansible-playbooks
-Ansible playbook repository with a collection of playbooks build around Redhat like distributions
+A collection of Ansible playbooks built around Red Hat-like distributions.
