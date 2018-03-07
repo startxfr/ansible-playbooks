@@ -1,5 +1,5 @@
 ---
-- name: Challenge 4
+- name: Challenge4 webserver
   hosts: webserver
   tasks:
     - name: install http
@@ -12,6 +12,14 @@
         - mod_ssl
         - php
         - php-mysql
+    - name: activation firewall
+      firewall:
+        name: "{{ item }}"
+        state: enabled
+        permanent: true
+      with_items:
+        - http
+        - https
     - name: demarrage service
       become: true
       service:
@@ -38,3 +46,30 @@
 #        service:
 #          name: httpd
 #          state: restarted
+
+- name: Challenge4 mariadb
+  hosts: mariadb
+  tasks:
+    - name: install mariadb
+      become: true
+      yum:
+        name: "{{ item }}"
+        state: latest
+      with_items:
+        - mariadb-server
+        - mariadb-client
+    - name: activation des firewall
+      firewall:
+        name: mysql
+        state: enabled
+        permanent: true
+    - name: activation service
+      service:
+        name: mariadb
+        state: started
+        enable: true
+    - name: creation user
+      mysql_user:
+        - name: 'devops'
+          password: 'redhat'
+          host_all: yes
