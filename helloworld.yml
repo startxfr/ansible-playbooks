@@ -1,0 +1,24 @@
+# Group2 Playbook
+- name: Playbook for create a Hello World website
+  hosts: all
+  tasks:
+    - name: Install HTTPD
+      yum:
+        name: httpd
+        state: latest
+    - name: Start and enable HTTPD
+      service:
+        name: httpd
+        state: started
+        enabled: true
+    - name: Firewall - open service HTTP
+      firewalld:
+        service: http
+        permanent: true
+        immediate: true
+        state: enabled
+     - name: Install Hello World HTML
+       copy:
+         dest: /var/www/html/index.html
+         content: "Hello World ! This is G2!"
+
