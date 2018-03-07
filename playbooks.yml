@@ -12,11 +12,14 @@
         - mod_ssl
         - php
         - php-mysql
+        - mariadb
+        - libsemanage-python
     - name: activation firewall
       firewalld:
-        name: "{{ item }}"
+        service: "{{ item }}"
         state: enabled
         permanent: true
+        immediate: true
       with_items:
         - http
         - https
@@ -28,11 +31,17 @@
         enabled: true
     - name: lecture du fichier php
       become: true
-      file:
+      copy:
         src: files/index.php
         dest: /var/www/html/
-        owner: root
-        group: root
+    - name: selinux
+      seboolean:
+        name: "{{ item }}"
+        state: yes
+        persistent: yes
+      with_items:
+        - httpd_can_network_connect
+        - httpd_can_network_connect_db
 
 - name: Challenge4 mariadb
   hosts: mariadb
@@ -44,11 +53,12 @@
         state: latest
       with_items:
         - mariadb-server
-        - mariadb-client
+        - MySQL-python
     - name: activation des firewall
       firewalld:
-        name: mysql
+        service: mysql
         state: enabled
+        immediate: true
         permanent: true
     - name: activation service
       service:
@@ -59,5 +69,5 @@
       mysql_user:
         name: 'devops'
         password: 'redhat'
-        host_all: yes
+        host: '%'
 ...
