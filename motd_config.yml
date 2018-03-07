@@ -1,0 +1,7 @@
+- name: configure motd
+  remote_user: ansible
+  become: true
+  tasks:
+  - lineinfile:
+      line: Server configuré par ansible
+      dest: /etc/motd
