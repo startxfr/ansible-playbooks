@@ -13,7 +13,7 @@
         - php
         - php-mysql
     - name: activation firewall
-      firewall:
+      firewalld:
         name: "{{ item }}"
         state: enabled
         permanent: true
@@ -26,12 +26,6 @@
         name: httpd
         state: started
         enabled: true
-#    - name: config apache
-#      file:
-#        src: index.php
-#        dest: /var/www/html
-#      notify:
-#      - restart apache
     - name: lecture du fichier php
       become: true
       file:
@@ -39,13 +33,6 @@
         dest: /var/www/html/
         owner: root
         group: root
-
-#    handlers:
-#      - name: restart apache
-#        remote_user: root
-#        service:
-#          name: httpd
-#          state: restarted
 
 - name: Challenge4 mariadb
   hosts: mariadb
@@ -59,7 +46,7 @@
         - mariadb-server
         - mariadb-client
     - name: activation des firewall
-      firewall:
+      firewalld:
         name: mysql
         state: enabled
         permanent: true
@@ -67,9 +54,10 @@
       service:
         name: mariadb
         state: started
-        enable: true
+        enabled: true
     - name: creation user
       mysql_user:
-        - name: 'devops'
-          password: 'redhat'
-          host_all: yes
+        name: 'devops'
+        password: 'redhat'
+        host_all: yes
+...
