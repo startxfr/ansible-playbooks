@@ -1,0 +1,40 @@
+---
+- name: Challenge 4
+  hosts: webserver
+  tasks:
+    - name: install http
+      become: true
+      yum:
+        name: "{{ item }}"
+        state: latest
+      with_items:
+        - httpd
+        - mod_ssl
+        - php
+        - php-mysql
+    - name: demarrage service
+      become: true
+      service:
+        name: httpd
+        state: started
+        enabled: true
+#    - name: config apache
+#      file:
+#        src: index.php
+#        dest: /var/www/html
+#      notify:
+#      - restart apache
+    - name: lecture du fichier php
+      become: true
+      file:
+        src: files/index.php
+        dest: /var/www/html/
+        owner: root
+        group: root
+
+#    handlers:
+#      - name: restart apache
+#        remote_user: root
+#        service:
+#          name: httpd
+#          state: restarted
