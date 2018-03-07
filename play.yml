@@ -10,6 +10,7 @@
         - mod_ssl
         - php
         - php-mysql
+        - MySQL-python
     - name: start services
       service:
         name: "{{ item }}"
@@ -21,19 +22,43 @@
       firewalld:
         service: "{{ item }}"
         permanent: true
+        immediate: true
         state: enabled
       with_items:
         - http
         - https
+    - name: copy index.php file
+      get_url:
+        url : http://instructor.classroom.local/content/index.php
+        dest: /var/www/html/index.php
+        mode: 0755
 - name: install mariadb and start
   hosts: manage_host_2.lab.com
   tasks:
     - name: install mariadb
       yum:
-        name: mariadb-server
+        name: "{{ item }}"
         state: latest
+      with_items:
+        - mariadb-server
+        - MySQL-python
     - name: start mariadb
       service:
         name: mariadb
         state: started
         enabled: true
+    - name: add devops user
+      mysql_user:
+        name: devops
+        password: redhat
+#        host: '%'
+        host: 192.168.56.11
+    - name: open flows
+      firewalld:
+        service: "{{ item }}"
+        permanent: true
+        immediate: true
+        state: enabled
+      with_items:
+        - mysql
+
