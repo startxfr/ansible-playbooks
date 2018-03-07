@@ -1,0 +1,13 @@
+- name: install vim
+  hosts:
+    - host1
+    - host2
+    - host3
+  remote_user: ansible
+  become: true
+  tasks:
+    - name: installation de vim
+      yum: 
+        state: installed
+        name: vim
+
