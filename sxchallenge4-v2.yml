@@ -102,6 +102,11 @@
           login_password: "{{ mysql_devops_password }}"
           check_implicit_admin: yes
           priv: "*.*:ALL,GRANT"
+        with_items:
+          - '%'
+          - localhost
+          - 127.0.0.1
+          - ::1
 
       when: inventory_hostname in groups['dbservers']
 
