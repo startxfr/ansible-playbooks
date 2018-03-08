@@ -76,6 +76,12 @@ On aurait pu séparer en deux plays.
 
 
 
+## Challenge 5
+
+Ce challenge a dispau dans la ansible-galaxy. 
+
+
+
 ## Challenge 6
 
 Ce challenge consiste à installer et configurer un serveur Satellite 6 sur une RHEL7 et d'y attacher un serveur CentOS7.
