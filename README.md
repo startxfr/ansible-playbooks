@@ -26,3 +26,7 @@ Note: An ssh key has been deployed on the 3 clients. This key enable devops user
 ```
   %wheel  ALL=(ALL)       NOPASSWD: ALL
 ```
+# Playbooks
+Please note : you have to run these using Tower.
+- sxchallenge4.yml: A playbook which configure a Webserver on client1 and a DB Server on client2
+- sxchallenge4-v2.yml: The same with a different module mysql_user (permit connexion from everywhere for devops user)
