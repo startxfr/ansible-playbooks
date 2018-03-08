@@ -4,6 +4,7 @@ This project contains a collection of playbooks built for StartX Challenges in m
 These playbooks are supposed to be ran on an Ansible Tower Architecture, mainly composed by a Tower server and 3 Ansible/Tower clients configured as following:
 
 Server | Function | Memory | Storage | IP addresses | OS
+---|---|---|---|---|---
 tower1.lab.com  | Tower | 4 GB | 16 GiB | 192.168.56.10 (NIC Host-only adapter, static) 10.0.2.15/24 gw: 10.0.2.2 (NIC NAT, dhcp) | CentOS 7.4
 client1.lab.com | Ansible client | 2 GB | 10 GiB | 192.168.56.11 (NIC Host-only adapter, static) 10.0.2.15/24 gw: 10.0.2.2 (NIC NAT, dhcp) | CentOS 7.4
 client2.lab.com | Ansible client | 2 GB | 10 GiB | 192.168.56.12 (NIC Host-only adapter, static) 10.0.2.15/24 gw: 10.0.2.2 (NIC NAT, dhcp) | CentOS 7.4
