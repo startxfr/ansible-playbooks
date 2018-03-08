@@ -11,7 +11,7 @@ Then run the playbook, like this:
 
 ansible-playbook -i hosts play.yml
 
-When the playbook run completes, you should be able to see the Mariadb and Apache php mysql running , on the target machines, and start the services, then add user to mariadb database. after running this playbook, you should to verify user added can connected to Mariadb database.
+When the playbook run completes, you should be able to see the Mariadb and Apache php mysql installed and running on the target machines, then add user to mariadb database. after running this playbook, you should to verify user added can connected to Mariadb database from web server.
 
 This is a very simple playbook and could serve as a starting point for more Mariadb and Apache php mysql projects.
 Application deployment
