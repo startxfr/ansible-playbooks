@@ -1,0 +1,154 @@
+- hosts: all
+  name: os tuning
+  become: true
+  become_method: sudo
+  become_user: root
+
+
+  tasks: 
+
+  - name: limits
+    copy: 
+      content: '* hard core 0'
+      dest: /etc/security/limits.d/10-core.conf
+
+  - name: postconf
+    lineinfile:
+      dest: /etc/postfix/main.cf
+      line: "{{ item.line }}"
+      regexp: "{{ item.regexp }}"
+    with_items:
+      - { line: "inet_interfaces = all" , regexp: "^inet_interfaces" }
+      - { line: "mydomain = client.fr" , regexp: "^mydomain" }
+      - { line: "relayhost = [smtp.renault.fr]" , regexp: "^relayhost" }
+      - { line: "smtp_fallback_relay = [smtp2.client.fr]" , regexp: "^smtp_fallback_relay" }
+      - { line: "masquerade_domains = \"client.com client.fr\"" , regexp: "^masquerade_domains" }
+      - { line: "masquerade_exceptions = root" , regexp: "^masquerade_exceptions" }
+    notify: restart_postfix
+
+  - name: restart postfix
+    service:
+      name: postfix
+      state: restarted
+      enabled: yes
+
+  - name: Set SH Timeout to 24H
+    blockinfile:
+      create: yes
+      dest: /etc/profile.d/tmout.sh
+      owner: root
+      group: root
+      mode: 0755
+      block: |
+        TMOUT=86400
+        readonly TMOUT
+        export TMOUT
+  - name: Set CSH Timeout to 24H
+    copy:
+      dest: /etc/profile.d/tmout.csh
+      owner: root
+      group: root
+      mode: 0755
+      content: "set -r autologout=1440"
+  - name: Set EDITOR to VI
+    blockinfile:
+      create: yes
+      dest: /etc/profile.d/editor.sh
+      owner: root
+      group: root
+      mode: 0755
+      block: |
+        EDITOR=vi
+        readonly EDITOR
+        export EDITOR
+  - name: Set History Time Format
+    blockinfile:
+      dest: /etc/profile.d/histtime.sh
+      create: yes
+      owner: root
+      group: root
+      mode: 0755
+      block: |
+        if [ -n "$BASH_VERSION" ] && [ ${BASH_VERSION:0:1} -ge 3 ]
+        then
+           HISTTIMEFORMAT="%F %T : "
+           readonly HISTTIMEFORMAT
+           export HISTTIMEFORMAT
+
+           HISTIGNORE="&:[#]*:exit" 
+           readonly HISTIGNORE
+           export HISTIGNORE
+        fi
+
+  - name: resolv
+    blockinfile:
+      dest: /etc/resolv.conf
+      block: |
+        domain client.fr
+        search classroom.lab lab.com client.fr renault.fr renault.com
+        nameserver 172.30.0.254
+        nameserver 138.21.10.172
+        nameserver 138.21.29.95
+        options rotate
+        options timeout:1
+
+  - name: disable dns modification
+    shell: if [ $(grep -wc '^dns=none$' /etc/NetworkManager/NetworkManager.conf) -lt 1 ]; then sed -i "/\[main\]/a dns=none" /etc/NetworkManager/NetworkManager.conf; fi
+
+  - name: Set Sysctl Parameters
+    blockinfile:
+      dest: /etc/sysctl.d/01-socle.conf
+      create: yes
+      owner: root
+      group: root
+      mode: 0755
+      block: |
+        ## Passage de la fenetre keepalive a 30 minutes
+        net.ipv4.tcp_keepalive_time = 300
+        ## increase system IP port limits
+        net.ipv4.ip_local_port_range = 1024 65535
+        ## aio-max-nr
+        fs.aio-max-nr = 1048576
+        ## file-max
+        fs.file-max = 6815744
+        ## Allow for more PIDs
+        kernel.pid_max = 4194303
+        ## Net Conf
+        net.core.rmem_default = 262144
+        net.core.rmem_max = 8388608
+        net.core.wmem_default = 262144
+        net.core.wmem_max = 8388608
+        net.ipv4.tcp_rmem = 4096 87380 8388608
+        net.ipv4.tcp_wmem = 4096 65536 8388608
+        net.ipv4.tcp_mem  = 8388608 8388608 8388608
+        net.ipv4.route.flush = 1
+
+
+  - name: banner line is present
+    lineinfile:
+      dest: "{{ item }}"
+      state: present
+      line: "SXChallenge : Deployed by Ansible"
+    with_items:
+      - /etc/motd 
+      - /etc/issue.net
+
+  - name: install chrony
+    yum:
+      name: chrony
+      state: latest
+
+  - name: change servers
+    shell: sed -i -e "s,0.rhel.pool.ntp.org,ntp1.client.fr,g" -e "s,1.rhel.pool.ntp.org,ntp2.client.fr,g" -e "s,2.rhel.pool.ntp.org,ntp3.client.fr,g" -e "s,3.rhel.pool.ntp.org,ntp4.client.fr,g" -e "/127.127.1.0/s/^#//g"  /etc/chrony.conf
+
+  - name: enable chronyd
+    service:
+      name: chronyd
+      enabled: true
+      state: started
+
+  handlers:
+    - name: restart_postfix
+      service:
+        name: postfix
+        state: restarted
