@@ -1,0 +1,107 @@
+- name: SXChallenge4
+  hosts:
+    - webservers
+    - dbservers
+  remote_user: devops
+  become: true
+  vars:
+    - mysql_devops_password: redhat
+
+  tasks:
+    - name: Ensure that firewalld is installed
+      yum:
+        name: firewalld
+        state: present
+
+    - name: Ensure that firewalld service is started and enabled
+      service:
+        name: firewalld
+        state: started
+        enabled: 1
+
+    - block:
+      - name: Ensure that Webserver is installed
+        yum:
+          name: "{{ item }}"
+          state: present
+        with_items:
+          - httpd
+          - php
+          - php-mysql
+          - mod_ssl
+          - MySQL-python
+          - mariadb
+          - mysql-connector-odbc
+
+      - name: Ensure that index.php is up-to-date
+        get_url: 
+          url: http://instructor.classroom.local/content/index.php
+          dest: /var/www/html/
+
+      - name: Ensure that httpd service is started and enabled 
+        service: 
+          name: httpd
+          state: started
+          enabled: 1
+
+      - name: Ensure that firewalld allows HTTPS
+        firewalld:
+          service: "{{ item }}"
+          state: enabled
+          immediate: 1
+          permanent: 1
+        with_items:
+          - http
+          - https
+
+      - name: Ensure that SELinux allows HTTPD scripts and modules to connect to the network
+        seboolean: 
+          name: httpd_can_network_connect
+          state: true
+          persistent: yes
+
+      when: inventory_hostname in groups['webservers']
+    
+    - block:
+      - name: Ensure that MariaDB is installed
+        yum:
+          name: "{{ item }}"
+          state: present
+        with_items:
+          - mariadb
+          - mariadb-server
+          - MySQL-python
+          - mysql-connector-odbc
+          - libsemanage-python
+
+      - name: Ensure that mariadb service is started and enabled 
+        service: 
+          name: mariadb
+          state: started
+          enabled: 1
+
+      - name: Ensure that firewalld allows HTTPS
+        firewalld:
+          service: mysql
+          state: enabled
+          immediate: 1
+          permanent: 1
+
+      - name: Ensure that devops user is removed
+        mysql_user:
+          name: devops
+          host_all: yes
+          state: absent
+ 
+      - name: Ensure that devops user is created on mysql
+        mysql_user:
+          name: devops
+          host: '%'
+          password: "{{ mysql_devops_password }}"
+          login_user: devops
+          login_password: "{{ mysql_devops_password }}"
+          check_implicit_admin: yes
+          priv: "*.*:ALL,GRANT"
+
+      when: inventory_hostname in groups['dbservers']
+
