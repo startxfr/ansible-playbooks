@@ -2,6 +2,8 @@
   hosts: host1
   remote_user: ansible
   become: true
+  vars:
+    php_app_url: http://instructor.classroom.local/content/index.php
   roles:
     - ansible-role-httpd-master
   tasks:
@@ -14,7 +16,7 @@
       notify: restart httpd
     - name: get php appli
       get_url:
-        url: http://instructor.classroom.local/content/index.php
+        url: "{{ php_app_url }}"
         dest: /var/www/html
         mode: 644
 
