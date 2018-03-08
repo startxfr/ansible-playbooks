@@ -1,0 +1,56 @@
+- name: Deploying httpd with tls
+  hosts: host1
+  remote_user: ansible
+  become: true
+  roles:
+    - ansible-role-httpd-master
+  tasks:
+    - name: installing php-mysql
+      yum:
+        name: 
+          - php-mysql
+          - php
+        state: installed
+      notify: restart httpd
+    - name: get php appli
+      get_url:
+        url: http://instructor.classroom.local/content/index.php
+        dest: /var/www/html
+        mode: 644
+
+    - name: delete all index.html
+      file:
+        path: /var/www/html/index.html
+        state: absent
+    - name: open firewall for https
+      firewalld:
+        service: https
+        permanent: true
+        immediate: true
+        state: enabled
+    - name: sebool for connection on socket
+      seboolean:
+        name: httpd_can_network_connect_db
+        persistent: true
+        state: true
+      
+      
+- name: Deploying mariadb
+  hosts: host2
+  remote_user: ansible
+  become: true
+  roles:
+    - ansible-role-mariadb-master
+  tasks:
+    - name: open port for mariadb
+      firewalld:
+        service: mysql 
+        permanent: true
+        immediate: true
+        state: enabled
+
+  handlers:
+    - name: restart httpd
+      service:
+        name: httpd
+        state: restarted
