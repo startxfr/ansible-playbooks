@@ -1,4 +1,4 @@
-# <span style='color:red'>Installation de Tower</span>
+# <span style='color:red'>Installation d'un webserver et server de base de données</span>
 
 Groupe 1 - GURUPU
 
@@ -18,13 +18,13 @@ Des copies supplémentaires de ce document peuvent être offerte a tous.
 
 <b style='color:green'>Révisions et versions du document</b>
 
-Gurupu, 6/03/18, version 1
+Gurupu, 08/03/18, version 1
 
 
 
 ## 1. A propos de ce document
 
-Ce document decrit les etapes d'installation et configuration de Ansible Tower pour le Workshop du 6 Mars 2018.
+Ce document decrit le playbook d'installation sur 2 machine, webserver et base de données pour le Workshop du 8 Mars 2018.
 
 ### 1.1 Audience
 
@@ -34,7 +34,7 @@ Ce document s'addresse a Riad
 
 | Acronyme | Description                |
 | :------- | :------------------------- |
-| NICs     | Network Interface Card     |
+| NIC      | Network Interface Card     |
 | NAT      | Network Adress Translation |
 
 ## 2. Configuration des serveurs
@@ -44,7 +44,7 @@ Ce document s'addresse a Riad
 Les serveurs ont la configuration suivante:
 
 - Distribution: CentOS 7
-- Nom: Tower, node1, node2, node3
+- Nom: Tower, node1
 - Mémoire: 8 Go
 - Disques internes: sda: 8 Go
 
@@ -61,113 +61,26 @@ Le serveur a été installé en CentOs 7 x86_64 avec une installation minimal.
 | Tower   | 192.168.56.10 | CentOS 7 | 1 nic: NAT<br />1 nic: configuré en hote seulement |
 | node1   | 192.168.56.11 | CentOS 7 | 1 nic: NAT<br />1 nic: configuré en hote seulement |
 | node2   | 192.168.56.12 | CentOS 7 | 1 nic: NAT<br />1 nic: configuré en hote seulement |
-| node3   | 192.168.56.13 | CentOS 7 | 1 nic: NAT<br />1 nic: configuré en hote seulement |
 
+#### 2.3.1 Configuration du webserver depuis Ansible
 
+Un playbook est utilise pour l'installation:
 
-#### 	2.3.1 Tower
+- Packages (httpd, mod_ssl, php, php-mysql, mariadb, libsemanage-python)
+- Firewall (http, https)
+- Activation des services httpd
+- SELinux (httpd_can_network_connect, httpd_can_network_connect_db)
+- Fichier PHP (index.php)
 
-```
-# nmcli con mod "Connexion filaire 1" ipv4.adresses 1962.168.56.10
-# nmcli con mod "Connexion filaire 1" ipv4.method manual
-# nmcli con mod "Connexion filaire 1" connection.autoconnect yes
-```
+#### 2.3.2 Configuration du server de base de donnees
 
+Un playbook est utilise pour l'installation:
 
-
-#### 	2.3.2 Node1
-
-```
-# nmcli con mod "Connexion filaire 1" ipv4.adresses 1962.168.56.11
-# nmcli con mod "Connexion filaire 1" ipv4.method manual
-# nmcli con mod "Connexion filaire 1" connection.autoconnect yes
-```
-
-
-
-#### 	2.3.3 Node2 
-
-```
-# nmcli con mod "Connexion filaire 1" ipv4.adresses 1962.168.56.12
-# nmcli con mod "Connexion filaire 1" ipv4.method manual
-# nmcli con mod "Connexion filaire 1" connection.autoconnect yes
-```
-
-
-
-#### 	2.3.4 Node3
-
-```
-# nmcli con mod "Connexion filaire 1" ipv4.adresses 1962.168.56.13
-# nmcli con mod "Connexion filaire 1" ipv4.method manual
-# nmcli con mod "Connexion filaire 1" connection.autoconnect yes
-```
-
-
-
-
-
-## 2.4 Configuration des machines
-
-Les machines doivent appartenir au domaine: lab.com
-
-#### 	2.3.1 Tower
-
-``` # hostnamectl set-hostname tower.lab.com```
-
-#### 	2.3.2 Node1
-
-``` # hostnamectl set-hostname node1.lab.com```
-
-#### 	2.3.3 Node2
-
-``` # hostnamectl set-hostname node2.lab.com```
-
-####	2.3.4 Node3
-
-``` # hostnamectl set-hostname node3.lab.com```
-
-
-
-## 3. Ansible Tower
-
-### 3.1 Recupération d'Ansible Tower
-
-Télécharger Ansible Tower a l'adresse suivante : https://www.ansible.com/products/tower
-
-### 3.2 Recupération de la license
-
-Une licence gratuit est disponible a l'adresse suivante: https://www.ansible.com/license
-
-### 3.3 Installation de Ansible Tower
-
-
-
-```
-# tar -xf ansible-tower-setup-latest.tar.gz
-# cd ansible-tower-setup-3.2.3
-# vim inventory
-
-	admin_password='root'
-	pg_password='root'
-	rabbitmq_password='root'
-
-```
-
-
-
-Dans un navigateur: https://192.168.56.10
-
-La connexion n'étant pas securisé, il faut confirmer l'exception pour la securité.  
-Par defaut les logs sont:
-
-- Username: admin
-
-- Password: root
-
-
-
+- Packages (mariadb-server, MySQL-python)
+- Firewall (mysql)
+- Activation des services (mariadb)
+- Creation du user mysql 
 
 ## Documentation
 
-http://docs.ansible.com/ansible/latest/tower.html
+http://docs.ansible.com/ansible/latest/index.html
