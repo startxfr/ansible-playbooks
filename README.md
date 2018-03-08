@@ -5,7 +5,7 @@ Standalone Mariadb and Apache, php mysql Deployment
     Requires Ansible 2.4 or newer
     Expects CentOS/RHEL 7.4
 
-These playbooks deploy a very basic implementation of Mariadb and Apache(version 2,4), php mysql , . To use them, first edit the "hosts" inventory file to contain the hostnames of the machines on which you want deployed.
+This playbook deploy a very basic implementation of Mariadb and Apache(version 2,4), php mysql . To use them, first edit the "hosts" inventory file to contain the hostnames of the machines on which you want deployed.
 
 Then run the playbook, like this:
 
