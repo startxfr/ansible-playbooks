@@ -18,7 +18,11 @@ Ansible is installed on tower1.lab.com directly from the extras YUM repository. 
 
 Note: An ssh key has been deployed on the 3 clients. This key enable devops user from tower1 to reach all clients through ssh without using a password. In other words, ssh devops@clientX.lab.com from tower1.lab.com will not ask for a password :
   - User devops has wheel as the secondary group 
-```[devops@client1 ~]$ id devops
-  uid=1000(devops) gid=1000(devops) groups=1000(devops),10(wheel)```
+```
+  [devops@client1 ~]$ id devops
+  uid=1000(devops) gid=1000(devops) groups=1000(devops),10(wheel)
+```
   - /etc/sudoers contains : 
-```%wheel  ALL=(ALL)       NOPASSWD: ALL```
+```
+  %wheel  ALL=(ALL)       NOPASSWD: ALL
+```
